@@ -35,10 +35,10 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
-# Executables to build
+# Executables to build (source files are in src/)
 executables = [
     Executable(
-        "gui_app.py",
+        "../src/gui_app.py",
         base=base,
         target_name="ImageToIcoConverter.exe",
         icon=None,  # You can add an icon file here if you have one
@@ -46,7 +46,7 @@ executables = [
         shortcut_dir="DesktopFolder",
     ),
     Executable(
-        "convert_to_ico.py",
+        "../src/convert_to_ico.py",
         base=None,  # Console application
         target_name="convert_to_ico.exe",
     ),

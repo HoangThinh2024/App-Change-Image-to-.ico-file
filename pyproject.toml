@@ -40,9 +40,9 @@ dev = [
 ]
 
 [project.scripts]
-image-to-ico = "gui_app:main"
-ico-converter = "convert_to_ico:main"
-msi-builder = "build_msi_gui:main"
+image-to-ico = "src.gui_app:main"
+ico-converter = "src.convert_to_ico:main"
+msi-builder = "src.build_msi_gui:main"
 
 [project.urls]
 Homepage = "https://github.com/HoangThinh2024/App-Change-Image-to-.ico-file"
@@ -54,8 +54,11 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["."]
+packages = ["src"]
 include-package-data = true
+
+[tool.setuptools.package-dir]
+"" = "."
 
 [tool.black]
 line-length = 100

@@ -129,11 +129,13 @@ def main():
         print("🚀 Khởi chạy GUI Mode...")
         print("🚀 Launching GUI Mode...")
         try:
-            import build_msi_gui
+            # Add parent directory to path to import from src/
+            sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+            from src import build_msi_gui
             build_msi_gui.main()
-        except ImportError:
-            print("❌ Không thể tìm thấy build_msi_gui.py")
-            print("❌ Cannot find build_msi_gui.py")
+        except ImportError as e:
+            print(f"❌ Không thể tìm thấy build_msi_gui.py: {e}")
+            print(f"❌ Cannot find build_msi_gui.py: {e}")
             sys.exit(1)
         return
     
