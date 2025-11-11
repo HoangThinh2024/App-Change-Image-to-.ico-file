@@ -167,7 +167,7 @@ Get-ChildItem *.png | ForEach-Object {
    ```
 
 2. **Exclude unnecessary packages**:
-   Edit `setup.py`, add to `excludes`:
+   Edit `cx_freeze_setup.py`, add to `excludes`:
    ```python
    "excludes": ["test", "unittest", "tkinter"] 
    ```
@@ -210,9 +210,9 @@ Get-ChildItem *.png | ForEach-Object {
 
 ### Q: Can I customize the installer?
 
-**A:** Yes! After MSI Builder generates `setup.py`:
+**A:** Yes! After MSI Builder generates `cx_freeze_setup.py`:
 
-1. Edit `setup.py` manually
+1. Edit `cx_freeze_setup.py` manually
 2. Customize:
    - Executable options
    - Build options
@@ -220,8 +220,8 @@ Get-ChildItem *.png | ForEach-Object {
    - Shortcuts
 3. Run build from command line:
    ```powershell
-   python setup.py build
-   python setup.py bdist_msi
+   python cx_freeze_setup.py build
+   python cx_freeze_setup.py bdist_msi
    ```
 
 ### Q: How to include data files (images, configs)?
@@ -399,7 +399,7 @@ upx --version
    ```
 
 2. **Test in console mode** (see errors):
-   Edit `setup.py`:
+   Edit `cx_freeze_setup.py`:
    ```python
    base = "Console"  # Instead of "Win32GUI"
    ```
@@ -442,7 +442,7 @@ upx --version
 **A:** Include image files:
 
 ```python
-# In setup.py
+# In cx_freeze_setup.py
 "include_files": [
     ("images", "images"),
     ("resources", "resources"),

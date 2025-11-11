@@ -105,7 +105,7 @@ class CustomBuildStrategy:
         """Custom build process"""
         self.pre_build()
         # Standard build
-        subprocess.run(["python", "setup.py", "build"])
+        subprocess.run(["python", "cx_freeze_setup.py", "build"])
         self.post_build()
     
     def post_build(self):

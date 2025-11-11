@@ -385,7 +385,7 @@ generate_setup_py()
     ├── Embed auto_updater.py
     └── Generate update_config.py
     ↓
-run_build() → subprocess: python setup.py build
+run_build() → subprocess: python cx_freeze_setup.py build
     ↓
 cx_Freeze: Collect dependencies → Build EXE
     ↓
@@ -536,12 +536,12 @@ class BuildStrategy(ABC):
 class EXEBuildStrategy(BuildStrategy):
     def build(self, config):
         # Build standalone EXE
-        subprocess.run(["python", "setup.py", "build"])
+        subprocess.run(["python", "cx_freeze_setup.py", "build"])
 
 class MSIBuildStrategy(BuildStrategy):
     def build(self, config):
         # Build MSI installer
-        subprocess.run(["python", "setup.py", "bdist_msi"])
+        subprocess.run(["python", "cx_freeze_setup.py", "bdist_msi"])
 
 # Usage:
 strategy = EXEBuildStrategy() if build_type == "EXE" else MSIBuildStrategy()
