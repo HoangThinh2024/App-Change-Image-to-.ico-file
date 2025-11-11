@@ -25,6 +25,13 @@ if not os.path.exists(ICON_PATH):
 build_exe_options = {
     "packages": ["tkinter", "PIL", "os", "sys", "src", "requests", "packaging", "hashlib", "zipfile"],
     "include_files": [],
+    # Explicitly include common Pillow modules so cx_Freeze bundles them.
+    "includes": [
+        "PIL",
+        "PIL.Image",
+        "PIL.ImageFile",
+        "PIL.ImageTk",
+    ],
     "excludes": ["unittest", "email", "html", "http", "urllib", "xml", "test"],
     "optimize": 2,
     "include_msvcr": True,
@@ -35,6 +42,8 @@ build_exe_options = {
 }
 
 # MSI build options
+ICON_PATH = os.path.abspath("output2.ico") if os.path.exists("output2.ico") else None
+
 bdist_msi_options = {
     "add_to_path": False,
     "initial_target_dir": r"[ProgramFilesFolder]\App Change Image To .Ico File",
@@ -53,7 +62,7 @@ executables = [
         "src/gui_app.py",
         base=base,
         target_name="App Change Image To .Ico File.exe",
-        icon=ICON_PATH,  # Will be None if icon doesn't exist
+        icon=ICON_PATH if ICON_PATH else None,
         shortcut_name="App Change Image To .Ico File",
         shortcut_dir='DesktopFolder',
     ),
@@ -71,3 +80,23 @@ setup(
     },
     executables=executables,
 )
+
+def _check_pillow():
+    try:
+        import PIL  # noqa: F401
+    except Exception:
+        msg = (
+            "Pillow (PIL) is not installed in the active environment.\n"
+            "Please install it before running this setup on Windows.\n"
+            "Recommended command:\n    pip install -r requirements.txt\n"
+            "Or:\n    pip install Pillow\n"
+        )
+        print(msg, file=sys.stderr)
+        # Abort early with a non-zero exit code to avoid running cx_Freeze with a missing dependency.
+        sys.exit(1)
+    return True
+
+
+if __name__ == "__main__":
+    # When invoked directly, give a helpful message if Pillow isn't available.
+    _check_pillow()
