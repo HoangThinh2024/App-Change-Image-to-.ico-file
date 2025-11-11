@@ -35,6 +35,8 @@ Chạy ứng dụng GUI với giao diện thân thiện / Run the GUI applicatio
 python gui_app.py
 ```
 
+![GUI Screenshot](https://github.com/user-attachments/assets/95bef040-626d-46f3-b38a-7d56134fe10b)
+
 Giao diện GUI cung cấp / The GUI interface provides:
 - ✅ Chọn file ảnh dễ dàng / Easy file selection
 - ✅ Xem trước ảnh trước khi chuyển đổi / Preview image before conversion
