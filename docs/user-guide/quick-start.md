@@ -1,8 +1,56 @@
 # 🚀 Quick Start Guide - Hướng dẫn Nhanh
 
-**Thời gian: 5-10 phút** | **Dành cho: End-User** | **Level: Beginner**
+**Thời gian: 5-10 phút** | **Dành cho: End-User & Developer** | **Level: Beginner**
 
-## 📥 Cài đặt
+---
+
+## � For End-Users (Người dùng Cuối)
+
+### ⚡ Không cần Python! Chỉ cần download và dùng
+
+#### Option 1: MSI Installer (Khuyến nghị) ⭐
+
+**Download:** `image-to-ico-converter-1.0.0-win64.msi` từ [Releases](https://github.com/HoangThinh2024/App-Change-Image-to-.ico-file/releases)
+
+**Cài đặt:**
+1. **Double-click** file MSI
+2. **Click** "Next" → "Install" → "Finish"
+3. **Launch** từ Start Menu: "App Change Image To .Ico File"
+
+✅ **Ưu điểm:**
+- Cài đặt chuyên nghiệp
+- Start Menu shortcut
+- Dễ gỡ cài đặt (Control Panel → Programs)
+- Không cần Python
+
+**Sử dụng:**
+1. Launch app từ Start Menu
+2. Click "Browse Image" → Chọn ảnh
+3. Click "Convert to ICO" → Chọn nơi lưu
+4. Hoàn thành!
+
+#### Option 2: Portable ZIP 📁
+
+**Download:** `App-Change-Image-to-Ico-Portable.zip` từ [Releases](https://github.com/HoangThinh2024/App-Change-Image-to-.ico-file/releases)
+
+**Sử dụng:**
+1. **Giải nén** ZIP vào bất kỳ folder nào
+2. **Double-click** `App Change Image To .Ico File.exe`
+3. Dùng ngay, không cần cài đặt!
+
+✅ **Ưu điểm:**
+- Không cần cài đặt
+- Portable - chạy từ USB được
+- Không động đến registry
+- Không cần Python
+
+**🎯 Bạn chọn gì?**
+- **Dùng lâu dài trên PC** → Chọn MSI Installer
+- **Dùng tạm thời/USB** → Chọn Portable ZIP
+
+---
+
+## 🛠️ For Developers (Nhà phát triển)
 
 ### Bước 1: Cài đặt Python
 

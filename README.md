@@ -59,7 +59,29 @@ This project provides a complete suite of tools for Python developers and end-us
 
 ## 🚀 Quick Start | Bắt đầu Nhanh
 
-### Installation | Cài đặt
+### For End-Users | Cho Người dùng Cuối
+
+**📦 Đã có file MSI/EXE?** Chỉ cần:
+
+```powershell
+# Option 1: MSI Installer (Recommended)
+# 1. Double-click: image-to-ico-converter-1.0.0-win64.msi
+# 2. Follow installation wizard
+# 3. Launch from Start Menu
+
+# Option 2: Portable ZIP
+# 1. Extract: App-Change-Image-to-Ico-Portable.zip
+# 2. Double-click: "App Change Image To .Ico File.exe"
+# 3. No installation needed!
+```
+
+**💡 Không cần Python, không cần dependencies!**
+
+---
+
+### For Developers | Cho Nhà phát triển
+
+#### Installation | Cài đặt
 
 ```powershell
 # 1. Clone repository
@@ -76,9 +98,7 @@ uv sync
 pip install -r requirements.txt
 ```
 
-### Usage | Sử dụng
-
-#### For End-Users | Cho Người dùng
+#### Usage | Sử dụng
 
 ```powershell
 # Image Converter GUI
@@ -90,6 +110,21 @@ uv run python src/build_msi_gui.py
 # Or use batch scripts | Hoặc dùng scripts
 scripts\run_converter.bat
 scripts\run_builder.bat
+```
+
+#### Building Distribution | Build phân phối
+
+```powershell
+# Build MSI installer and Portable ZIP
+uv run python src/build_msi_gui.py
+
+# Or build manually
+uv run python cx_freeze_setup.py build         # Build EXE
+uv run python cx_freeze_setup.py bdist_msi     # Build MSI
+
+# Output files in dist/
+# - image-to-ico-converter-1.0.0-win64.msi (MSI Installer)
+# - App-Change-Image-to-Ico-Portable.zip (Portable version)
 ```
 
 #### For Developers | Cho Developers
@@ -150,33 +185,53 @@ App-Change-Image-to-.ico-file/
 
 ### Technical Deep-Dive | Kỹ thuật Chi tiết
 
-- **🔄 [Auto-Update Guide](docs/AUTO_UPDATE_GUIDE.md)** - Auto-update system (500+ lines)
-- **🤖 [Auto-Setup Guide](docs/AUTO_SETUP_GUIDE.md)** - Automatic configuration
-- **🏗️ [Build Guide](docs/BUILD_GUIDE.md)** - Building & deployment
-- **⚡ [UV Quickstart](docs/UV_QUICKSTART.md)** - UV package manager
+- **🔄 [Auto-Update Guide](docs/guides/AUTO_UPDATE_GUIDE.md)** - Auto-update system (500+ lines)
+- **🤖 [Auto-Setup Guide](docs/guides/AUTO_SETUP_GUIDE.md)** - Automatic configuration
+- **🏗️ [Build Guide](docs/guides/BUILD_GUIDE.md)** - Building & deployment
+- **⚡ [UV Quickstart](docs/guides/UV_QUICKSTART.md)** - UV package manager
 
 ## 🎯 Use Cases | Các trường hợp Sử dụng
 
-### For End-Users | Cho Người dùng
+### 📦 For End-Users | Người dùng Cuối
 
+**Scenario 1: Convert logo to favicon**
 ```powershell
-# Convert logo to favicon
-uv run python src/gui_app.py
+# If using MSI installed version:
+Start Menu → "App Change Image To .Ico File"
 # → Select logo.png
 # → Save as favicon.ico
 # → Upload to website
 
-# Build your Python app to EXE
-uv run python src/build_msi_gui.py
-# → Select your project folder
-# → Click "Build EXE"
-# → Share your_app.exe!
+# If using portable ZIP:
+Double-click "App Change Image To .Ico File.exe"
+# → Same steps as above
 ```
 
-### For Developers | Cho Developers
+**Scenario 2: Batch convert multiple images**
+```powershell
+# Drag & drop multiple image files into the app
+# All files will be converted to .ico format
+```
 
+### 🛠️ For Python Developers | Nhà phát triển Python
+
+**Scenario 1: Build your Python app to standalone EXE**
+```powershell
+# Launch MSI Builder GUI
+uv run python src/build_msi_gui.py
+# → Auto-detects your project info (GitHub, version, icon)
+# → Click "Build MSI" or "Build EXE"
+# → Get professional installer/executable
+# → Share with users without Python!
+
+# Output in dist/ folder:
+# - your-app-1.0.0-win64.msi (MSI Installer)
+# - Portable ZIP (if created)
+```
+
+**Scenario 2: Add auto-update to your app**
 ```python
-# Add auto-update to your app
+# Add to your main app file
 from auto_updater import check_and_prompt_update
 
 # At app startup
@@ -186,6 +241,23 @@ check_and_prompt_update(
     update_url="https://raw.githubusercontent.com/user/repo/main/version.json",
     app_name="MyApp"
 )
+# → Automatic version checking
+# → Download and install updates
+# → Backup and rollback support
+```
+
+**Scenario 3: Programmatic image conversion**
+```python
+from convert_to_ico import convert_image_to_ico
+
+# Single file conversion
+convert_image_to_ico("logo.png", "favicon.ico")
+
+# Batch conversion
+import os
+for file in os.listdir("images/"):
+    if file.endswith((".png", ".jpg")):
+        convert_image_to_ico(f"images/{file}", f"icons/{file}.ico")
 ```
 
 **📖 Xem thêm examples:** [examples/](examples/)
@@ -210,26 +282,92 @@ check_and_prompt_update(
 
 ## 🎓 Learning Path | Lộ trình Học
 
-### Beginner | Người mới bắt đầu
+### 👥 For End-Users | Người dùng Cuối
 
-1. **README.md** (5 min) - You are here!
-2. **[Quick Start](docs/user-guide/quick-start.md)** (10 min) - Hands-on tutorial
-3. **[Image Converter Guide](docs/user-guide/image-converter.md)** (15 min)
-4. **[MSI Builder Guide](docs/user-guide/msi-builder.md)** (20 min)
+**New to the app?** Start here:
 
-### Advanced User | Người dùng Nâng cao
+1. **📦 [Quick Start](docs/user-guide/quick-start.md)** (5 min)
+   - Download MSI or Portable ZIP
+   - Install and launch
+   - Convert your first image
 
-1. **[Auto-Update Guide](docs/AUTO_UPDATE_GUIDE.md)** (30 min)
-2. **[Auto-Setup Guide](docs/AUTO_SETUP_GUIDE.md)** (20 min)
-3. **[Build Guide](docs/BUILD_GUIDE.md)** (25 min)
+2. **🎨 [Image Converter Guide](docs/user-guide/image-converter.md)** (15 min)
+   - Advanced features
+   - Batch conversion
+   - Tips & tricks
 
-### Developer | Nhà phát triển
+3. **❓ [FAQ](docs/FAQ.md)** (10 min)
+   - Common questions
+   - Troubleshooting
+   - Best practices
 
-1. **[STRUCTURE.md](STRUCTURE.md)** (10 min)
-2. **[Architecture](docs/developer-guide/architecture.md)** (30 min)
-3. **[API Reference](docs/developer-guide/api-reference.md)** (40 min)
-4. **[Examples](examples/)** (code review)
-5. **[Extending](docs/developer-guide/extending.md)** (custom features)
+**Total time: ~30 minutes to become proficient!**
+
+---
+
+### 🛠️ For Python Developers | Nhà phát triển
+
+**Want to build your own apps?**
+
+1. **📦 [Quick Start](docs/user-guide/quick-start.md)** (10 min)
+   - Setup development environment
+   - Run from source code
+   - Test features
+
+2. **🏗️ [MSI Builder Guide](docs/user-guide/msi-builder.md)** (20 min)
+   - Build standalone EXE
+   - Create MSI installer
+   - Distribution basics
+
+3. **📦 [Distribution Guide](docs/guides/DISTRIBUTION_GUIDE.md)** (30 min)
+   - Advanced build options
+   - Testing before release
+   - Publishing workflow
+
+4. **🔄 [Auto-Update Guide](docs/guides/AUTO_UPDATE_GUIDE.md)** (30 min)
+   - Add auto-update to your app
+   - Version management
+   - Release automation
+
+**Total time: ~90 minutes to build & distribute your first app!**
+
+---
+
+### 👨‍💻 For Advanced Developers | Chuyên gia
+
+**Want to extend or contribute?**
+
+1. **📁 [STRUCTURE.md](STRUCTURE.md)** (10 min)
+   - Project organization
+   - File structure
+   - Module overview
+
+2. **🏛️ [Architecture](docs/developer-guide/architecture.md)** (30 min)
+   - System design
+   - Component interaction
+   - Design patterns
+
+3. **📖 [API Reference](docs/developer-guide/api-reference.md)** (40 min)
+   - Complete API documentation
+   - Code examples
+   - Integration guide
+
+4. **💻 [Examples](examples/)** (30 min)
+   - Code review
+   - Use cases
+   - Best practices
+
+5. **🔧 [Extending](docs/developer-guide/extending.md)** (45 min)
+   - Custom features
+   - Plugin development
+   - Advanced customization
+
+6. **🤝 [Contributing](docs/developer-guide/contributing.md)** (20 min)
+   - Contribution workflow
+   - Code standards
+   - Pull request process
+
+**Total time: ~3 hours to master the codebase!**
 
 ## 🤝 Contributing | Đóng góp
 

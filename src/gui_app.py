@@ -5,10 +5,21 @@ GUI Application for Image to ICO Converter
 """
 
 import os
+import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from PIL import Image, ImageTk
-from convert_to_ico import convert_image_to_ico
+
+# Fix import path for frozen application
+if getattr(sys, 'frozen', False):
+    # Running as compiled executable - modules are in src package
+    from src.convert_to_ico import convert_image_to_ico
+else:
+    # Running as script
+    try:
+        from src.convert_to_ico import convert_image_to_ico
+    except ImportError:
+        from convert_to_ico import convert_image_to_ico
 
 
 class ImageToIcoConverterGUI:

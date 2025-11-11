@@ -10,6 +10,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Complete Distribution System**
+  - MSI Installer builder for professional Windows deployment
+  - Portable ZIP packaging for USB/no-install usage
+  - Standalone EXE with all dependencies included
+  - cx_Freeze integration with optimized build configuration
+  - Auto-detection of Python environment and dependencies
+  
+- **End-User Distribution Files**
+  - `image-to-ico-converter-1.0.0-win64.msi` - Professional MSI installer (~20 MB)
+  - `App-Change-Image-to-Ico-Portable.zip` - Portable version (~20 MB)
+  - No Python required for end-users
+  - Start Menu integration (MSI only)
+  - Clean uninstallation support (MSI only)
+  
+- **Build System Enhancements**
+  - `cx_freeze_setup.py` - Dedicated freeze configuration
+  - Separated from package build system (pyproject.toml)
+  - Auto-includes for tkinter, PIL, and all dependencies
+  - DLL management and runtime inclusion
+  - Optimized package excludes for smaller size
+  
+- **Documentation Updates**
+  - Distribution Guide (`docs/guides/DISTRIBUTION_GUIDE.md`) - 800+ lines
+  - Updated Quick Start with MSI/EXE instructions
+  - Updated README with end-user installation options
+  - Build troubleshooting and testing guides
+  
 - Complete project restructuring with professional organization
 - Comprehensive documentation suite (8000+ lines)
   - User guides: Quick Start, Image Converter, MSI Builder, FAQ
@@ -25,6 +52,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README files for docs/, examples/, and developer-guide/
 
 ### Changed
+- **Build Configuration**
+  - Renamed `setup.py` to `cx_freeze_setup.py` to avoid conflicts
+  - Updated `build_msi_gui.py` to generate proper freeze setup
+  - Added `bin_includes` and `bin_excludes` for DLL management
+  - Fixed executable paths to use `src/` package structure
+  
+- **Import System**
+  - Updated `src/gui_app.py` to handle frozen vs. script execution
+  - Fixed module imports for cx_Freeze frozen applications
+  - Added proper `src` package inclusion in build
+  
 - Reorganized project structure
   - Source code moved to `src/`
   - Documentation in `docs/`
@@ -33,6 +71,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Scripts in `scripts/`
 - Updated README.md with modern layout, badges, and bilingual support
 - All documentation now includes extensive examples and use cases
+
+### Fixed
+- **Build System Issues**
+  - Fixed "python311.dll was not found" error with proper DLL inclusion
+  - Fixed "ModuleNotFoundError: No module named 'convert_to_ico'" in frozen apps
+  - Fixed executable path from `gui_app.py` to `src/gui_app.py`
+  - Fixed package detection to include `src` module
+  
+- **Runtime Issues**
+  - Resolved import errors in frozen application
+  - Fixed module path resolution for packaged apps
+  - Ensured all dependencies are properly bundled
 
 ---
 
