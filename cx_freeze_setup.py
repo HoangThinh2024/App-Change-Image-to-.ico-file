@@ -13,6 +13,14 @@ APP_VERSION = "1.0"
 APP_DESCRIPTION = """Đây là app chuyển đổi"""
 APP_AUTHOR = "Hoàng Thịnh"
 
+# Get the directory where this script is located
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Define icon path - make it optional
+ICON_PATH = os.path.join(SCRIPT_DIR, "output2.ico")
+if not os.path.exists(ICON_PATH):
+    ICON_PATH = None  # Use default icon if custom icon doesn't exist
+
 # Dependencies to include
 build_exe_options = {
     "packages": ["tkinter", "PIL", "os", "sys", "src", "requests", "packaging", "hashlib", "zipfile"],
@@ -39,9 +47,9 @@ ICON_PATH = os.path.abspath("output2.ico") if os.path.exists("output2.ico") else
 bdist_msi_options = {
     "add_to_path": False,
     "initial_target_dir": r"[ProgramFilesFolder]\App Change Image To .Ico File",
-    # If an icon file exists in the project root use it, otherwise don't set install_icon
-    **({"install_icon": ICON_PATH} if ICON_PATH else {}),
 }
+if ICON_PATH:
+    bdist_msi_options["install_icon"] = ICON_PATH
 
 # Base for Windows GUI application
 base = None
