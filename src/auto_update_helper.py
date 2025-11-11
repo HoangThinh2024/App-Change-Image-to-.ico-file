@@ -204,7 +204,23 @@ def read_version_from_file(project_dir=None):
         except Exception:
             pass
     
-    # Check setup.py
+    # Check cx_freeze_setup.py (primary setup file for this project)
+    cx_freeze_setup_file = project_dir / "cx_freeze_setup.py"
+    if cx_freeze_setup_file.exists():
+        try:
+            with open(cx_freeze_setup_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                match = re.search(r'APP_VERSION\s*=\s*["\'](.+?)["\']', content)
+                if match:
+                    return match.group(1)
+                # Also try standard version pattern
+                match = re.search(r'version\s*=\s*["\'](.+?)["\']', content)
+                if match:
+                    return match.group(1)
+        except Exception:
+            pass
+    
+    # Check setup.py (fallback for other projects)
     setup_file = project_dir / "setup.py"
     if setup_file.exists():
         try:
