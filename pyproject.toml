@@ -7,7 +7,7 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
+license = { text = "MIT" }
 keywords = ["ico", "icon", "converter", "image", "gui", "msi-builder"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
