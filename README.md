@@ -27,7 +27,9 @@ pip install Pillow
 
 ## Cách sử dụng / Usage
 
-### Cú pháp cơ bản / Basic syntax
+### 1. Sử dụng từ dòng lệnh / Command Line Usage
+
+#### Cú pháp cơ bản / Basic syntax
 
 ```bash
 python convert_to_ico.py <input_image> [output_ico]
@@ -53,6 +55,23 @@ python convert_to_ico.py picture.bmp
 python convert_to_ico.py image.gif favicon.ico
 python convert_to_ico.py photo.webp
 ```
+
+### 2. Sử dụng như một module Python / Use as a Python Module
+
+```python
+from convert_to_ico import convert_image_to_ico
+
+# Chuyển đổi cơ bản / Basic conversion
+convert_image_to_ico('input.png')
+
+# Chỉ định tên file đầu ra / Specify output filename
+convert_image_to_ico('input.jpg', 'output.ico')
+
+# Chỉ định kích thước tùy chỉnh / Custom sizes
+convert_image_to_ico('input.png', 'custom.ico', sizes=[(32, 32), (64, 64)])
+```
+
+Xem file `example_usage.py` để biết thêm ví dụ / See `example_usage.py` for more examples.
 
 ## Tính năng / Features
 
