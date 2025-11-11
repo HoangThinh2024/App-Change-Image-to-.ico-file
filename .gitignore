@@ -210,3 +210,4 @@ __marimo__/
 test_image.png
 test_image.ico
 custom_output.ico
+*.ico

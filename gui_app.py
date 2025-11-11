@@ -17,19 +17,26 @@ class ImageToIcoConverterGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Image to ICO Converter - Chuyển đổi ảnh sang .ico")
-        self.root.geometry("700x600")
-        self.root.resizable(False, False)
+        self.root.geometry("800x700")
+        self.root.resizable(True, True)  # Cho phép kéo dãn cửa sổ
+        self.root.minsize(600, 500)  # Kích thước tối thiểu
         
         # Variables
         self.input_path = tk.StringVar()
         self.output_path = tk.StringVar()
         self.preview_image = None
+        self.original_image = None  # Lưu ảnh gốc để zoom
+        self.zoom_level = 1.0  # Mức độ zoom
+        self.max_preview_size = 400  # Kích thước preview tối đa
         
         # Set up UI
         self.setup_ui()
         
         # Center window
         self.center_window()
+        
+        # Bind resize event
+        self.root.bind('<Configure>', self.on_window_resize)
     
     def center_window(self):
         """Center the window on screen"""
@@ -114,14 +121,109 @@ class ImageToIcoConverterGUI:
         )
         preview_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
         
+        # Canvas cho preview với scrollbar
+        preview_canvas_frame = tk.Frame(preview_frame)
+        preview_canvas_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        self.preview_canvas = tk.Canvas(
+            preview_canvas_frame,
+            bg='#ecf0f1',
+            relief=tk.SUNKEN,
+            highlightthickness=0
+        )
+        
+        # Scrollbars
+        h_scrollbar = tk.Scrollbar(preview_canvas_frame, orient=tk.HORIZONTAL, command=self.preview_canvas.xview)
+        v_scrollbar = tk.Scrollbar(preview_canvas_frame, orient=tk.VERTICAL, command=self.preview_canvas.yview)
+        
+        self.preview_canvas.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
+        
+        # Grid layout
+        self.preview_canvas.grid(row=0, column=0, sticky='nsew')
+        h_scrollbar.grid(row=1, column=0, sticky='ew')
+        v_scrollbar.grid(row=0, column=1, sticky='ns')
+        
+        preview_canvas_frame.grid_rowconfigure(0, weight=1)
+        preview_canvas_frame.grid_columnconfigure(0, weight=1)
+        
+        # Label hiển thị ảnh trên canvas
         self.preview_label = tk.Label(
-            preview_frame,
+            self.preview_canvas,
             text="Chưa chọn ảnh / No image selected",
             bg='#ecf0f1',
-            font=('Arial', 10),
-            relief=tk.SUNKEN
+            font=('Arial', 10)
         )
-        self.preview_label.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.preview_canvas.create_window(0, 0, window=self.preview_label, anchor='nw')
+        
+        # Zoom controls
+        zoom_control_frame = tk.Frame(preview_frame)
+        zoom_control_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        tk.Label(zoom_control_frame, text="Zoom:", font=('Arial', 9)).pack(side=tk.LEFT, padx=5)
+        
+        zoom_out_btn = tk.Button(
+            zoom_control_frame,
+            text="➖",
+            command=self.zoom_out,
+            bg='#95a5a6',
+            fg='white',
+            font=('Arial', 10, 'bold'),
+            cursor='hand2',
+            relief=tk.FLAT,
+            padx=10,
+            pady=2
+        )
+        zoom_out_btn.pack(side=tk.LEFT, padx=2)
+        
+        self.zoom_label = tk.Label(
+            zoom_control_frame,
+            text="100%",
+            font=('Arial', 9, 'bold'),
+            width=8
+        )
+        self.zoom_label.pack(side=tk.LEFT, padx=5)
+        
+        zoom_in_btn = tk.Button(
+            zoom_control_frame,
+            text="➕",
+            command=self.zoom_in,
+            bg='#95a5a6',
+            fg='white',
+            font=('Arial', 10, 'bold'),
+            cursor='hand2',
+            relief=tk.FLAT,
+            padx=10,
+            pady=2
+        )
+        zoom_in_btn.pack(side=tk.LEFT, padx=2)
+        
+        reset_zoom_btn = tk.Button(
+            zoom_control_frame,
+            text="↻ Reset",
+            command=self.reset_zoom,
+            bg='#95a5a6',
+            fg='white',
+            font=('Arial', 9, 'bold'),
+            cursor='hand2',
+            relief=tk.FLAT,
+            padx=10,
+            pady=2
+        )
+        reset_zoom_btn.pack(side=tk.LEFT, padx=2)
+        
+        fit_window_btn = tk.Button(
+            zoom_control_frame,
+            text="⛶ Fit Window",
+            command=self.fit_to_window,
+            bg='#95a5a6',
+            fg='white',
+            font=('Arial', 9, 'bold'),
+            cursor='hand2',
+            relief=tk.FLAT,
+            padx=10,
+            pady=2
+        )
+        fit_window_btn.pack(side=tk.LEFT, padx=2)
         
         # Output file section
         output_frame = tk.LabelFrame(
@@ -242,23 +344,97 @@ class ImageToIcoConverterGUI:
             if img.mode != 'RGBA':
                 img = img.convert('RGBA')
             
-            # Calculate thumbnail size (max 300x300, maintain aspect ratio)
-            max_size = 300
-            img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+            # Lưu ảnh gốc để zoom
+            self.original_image = img.copy()
+            self.zoom_level = 1.0
             
-            # Convert to PhotoImage
-            photo = ImageTk.PhotoImage(img)
-            
-            # Update preview label
-            self.preview_label.config(image=photo, text='')
-            self.preview_label.image = photo  # Keep a reference
+            # Hiển thị ảnh với zoom
+            self.update_preview()
             
         except Exception as e:
             self.preview_label.config(
                 text=f"Không thể xem trước ảnh\nCannot preview image\n{str(e)}",
                 image=''
             )
+            self.original_image = None
             self.update_status(f"Lỗi xem trước / Preview error: {str(e)}", 'red')
+    
+    def update_preview(self):
+        """Update preview with current zoom level"""
+        if self.original_image is None:
+            return
+        
+        try:
+            # Tính kích thước mới dựa trên zoom level
+            new_width = int(self.original_image.width * self.zoom_level)
+            new_height = int(self.original_image.height * self.zoom_level)
+            
+            # Resize ảnh
+            resized_img = self.original_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            
+            # Convert to PhotoImage
+            photo = ImageTk.PhotoImage(resized_img)
+            
+            # Update preview label
+            self.preview_label.config(image=photo, text='')
+            self.preview_label.image = photo  # Keep a reference
+            
+            # Update canvas scroll region
+            self.preview_canvas.configure(scrollregion=self.preview_canvas.bbox('all'))
+            
+            # Update zoom label
+            self.zoom_label.config(text=f"{int(self.zoom_level * 100)}%")
+            
+        except Exception as e:
+            self.update_status(f"Lỗi cập nhật preview / Preview update error: {str(e)}", 'red')
+    
+    def zoom_in(self):
+        """Zoom in the preview image"""
+        if self.original_image is None:
+            return
+        self.zoom_level = min(self.zoom_level * 1.2, 5.0)  # Max 500%
+        self.update_preview()
+    
+    def zoom_out(self):
+        """Zoom out the preview image"""
+        if self.original_image is None:
+            return
+        self.zoom_level = max(self.zoom_level / 1.2, 0.1)  # Min 10%
+        self.update_preview()
+    
+    def reset_zoom(self):
+        """Reset zoom to 100%"""
+        if self.original_image is None:
+            return
+        self.zoom_level = 1.0
+        self.update_preview()
+    
+    def fit_to_window(self):
+        """Fit image to preview window"""
+        if self.original_image is None:
+            return
+        
+        # Lấy kích thước canvas
+        canvas_width = self.preview_canvas.winfo_width()
+        canvas_height = self.preview_canvas.winfo_height()
+        
+        if canvas_width <= 1 or canvas_height <= 1:
+            return
+        
+        # Tính zoom level để fit vào window
+        width_ratio = (canvas_width - 20) / self.original_image.width
+        height_ratio = (canvas_height - 20) / self.original_image.height
+        
+        self.zoom_level = min(width_ratio, height_ratio, 1.0)  # Không zoom to hơn 100%
+        self.update_preview()
+    
+    def on_window_resize(self, event):
+        """Handle window resize event"""
+        # Chỉ xử lý resize event của root window
+        if event.widget == self.root:
+            # Update canvas scroll region
+            if hasattr(self, 'preview_canvas'):
+                self.preview_canvas.configure(scrollregion=self.preview_canvas.bbox('all'))
     
     def update_status(self, message, color='black'):
         """Update status message"""
@@ -318,10 +494,13 @@ class ImageToIcoConverterGUI:
         """Reset the form to initial state"""
         self.input_path.set('')
         self.output_path.set('')
+        self.original_image = None
+        self.zoom_level = 1.0
         self.preview_label.config(
             image='',
             text="Chưa chọn ảnh / No image selected"
         )
+        self.zoom_label.config(text="100%")
         self.update_status("Sẵn sàng / Ready", 'green')
 
 

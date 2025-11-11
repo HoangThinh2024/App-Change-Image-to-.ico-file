@@ -124,9 +124,25 @@ def show_results():
 
 def main():
     """Main build process"""
+    # Check if GUI mode is requested
+    if len(sys.argv) > 1 and sys.argv[1] in ['--gui', '-g', 'gui']:
+        print("🚀 Khởi chạy GUI Mode...")
+        print("🚀 Launching GUI Mode...")
+        try:
+            import build_msi_gui
+            build_msi_gui.main()
+        except ImportError:
+            print("❌ Không thể tìm thấy build_msi_gui.py")
+            print("❌ Cannot find build_msi_gui.py")
+            sys.exit(1)
+        return
+    
     print("="*60)
-    print("🚀 Image to ICO Converter - Build Script")
+    print("🚀 Image to ICO Converter - Build Script (CLI Mode)")
     print("🚀 Script build ứng dụng chuyển đổi ảnh sang .ico")
+    print("\n💡 Tip: Chạy với '--gui' để mở giao diện đồ họa")
+    print("💡 Tip: Run with '--gui' to open graphical interface")
+    print("   Example: python build_msi.py --gui")
     print("="*60)
     
     # Clean previous builds
