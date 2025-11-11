@@ -6,7 +6,7 @@ authors = [
     { name = "HoangThinh2024" }
 ]
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = { text = "MIT" }
 keywords = ["ico", "icon", "converter", "image", "gui", "msi-builder"]
 classifiers = [

@@ -452,6 +452,7 @@ class BuilderGUI:
         self.compress_var = tk.BooleanVar(value=True)
         self.include_updater_var = tk.BooleanVar(value=True)
         self.update_url = tk.StringVar()
+        self.auto_detect_update = tk.BooleanVar(value=True)  # Tự động phát hiện
         
         tk.Checkbutton(
             section,
@@ -522,6 +523,20 @@ class BuilderGUI:
             cursor='hand2'
         ).pack(anchor=tk.W, pady=3)
         
+        # Auto-detect checkbox
+        tk.Checkbutton(
+            section,
+            text="🤖 Tự động phát hiện từ Git (khuyến nghị)",
+            variable=self.auto_detect_update,
+            font=('Segoe UI', 8),
+            bg='#ffffff',
+            fg='#27ae60',
+            activebackground='#ffffff',
+            activeforeground='#27ae60',
+            selectcolor='#ffffff',
+            cursor='hand2'
+        ).pack(anchor=tk.W, pady=(3, 5), padx=(20, 0))
+        
         # Update URL input
         url_frame = tk.Frame(section, bg='#ffffff')
         url_frame.pack(fill=tk.X, pady=(0, 5), padx=(20, 0))
@@ -536,18 +551,20 @@ class BuilderGUI:
             anchor='w'
         ).pack(side=tk.LEFT)
         
-        tk.Entry(
+        self.update_url_entry = tk.Entry(
             url_frame,
             textvariable=self.update_url,
             font=('Segoe UI', 8),
             relief=tk.SOLID,
             borderwidth=1,
-            fg='#7f8c8d'
-        ).pack(side=tk.LEFT, fill=tk.X, expand=True)
+            fg='#7f8c8d',
+            state='readonly'  # Readonly khi auto-detect
+        )
+        self.update_url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         
         tk.Label(
             section,
-            text="💡 URL đến file version.json (VD: https://example.com/version.json)",
+            text="💡 Auto-detect từ git remote origin (GitHub)",
             font=('Segoe UI', 7),
             fg='#95a5a6',
             bg='#ffffff'
@@ -796,6 +813,52 @@ class BuilderGUI:
                     self.main_script.set(full_path)
                     self.log(f"✓ Tự động phát hiện file chính: {filename}")
                     break
+            
+            # Auto-detect update URL from git
+            self.auto_detect_git_info(directory)
+    
+    def auto_detect_git_info(self, project_dir):
+        """Tự động phát hiện thông tin Git và setup update URL"""
+        if not self.auto_detect_update.get():
+            return
+        
+        try:
+            from auto_update_helper import detect_project_info, auto_detect_version
+            
+            self.log("\n🔍 Đang phát hiện thông tin Git...")
+            
+            info = detect_project_info(project_dir)
+            
+            if info['has_git'] and info['update_url']:
+                self.log(f"✓ Phát hiện GitHub: {info['owner']}/{info['repo']}")
+                self.log(f"✓ Update URL: {info['update_url']}")
+                
+                # Auto-fill update URL
+                self.update_url.set(info['update_url'])
+                
+                # Auto-fill app name if empty
+                if not self.app_name.get() or self.app_name.get() == "MyApplication":
+                    self.app_name.set(info['app_name'])
+                    self.log(f"✓ App Name: {info['app_name']}")
+                
+                # Auto-detect version
+                version = auto_detect_version(project_dir)
+                if version and version != "1.0.0":
+                    self.app_version.set(version)
+                    self.log(f"✓ Version: {version}")
+                
+                self.log("✓ Auto-Update đã được thiết lập tự động!")
+                
+            else:
+                self.log("ℹ Không phát hiện được GitHub repository")
+                self.log("💡 Để sử dụng Auto-Update tự động:")
+                self.log("   1. git remote add origin <github-url>")
+                self.log("   2. Chọn lại thư mục dự án")
+                
+        except ImportError:
+            self.log("⚠ Không tìm thấy auto_update_helper.py")
+        except Exception as e:
+            self.log(f"⚠ Lỗi khi phát hiện Git info: {e}")
     
     def browse_main_script(self):
         """Browse for main Python script"""
@@ -970,21 +1033,68 @@ class BuilderGUI:
                 except Exception as e:
                     self.log(f"⚠ Không thể copy auto_updater.py: {e}")
             
-            # Create update_config.py
-            if self.update_url.get():
-                update_config_content = f'''"""
+            # Auto-create update_config.py
+            update_url = self.update_url.get()
+            
+            # Nếu không có URL, thử auto-detect
+            if not update_url and self.auto_detect_update.get():
+                try:
+                    from auto_update_helper import detect_project_info
+                    info = detect_project_info(self.project_path.get())
+                    if info['update_url']:
+                        update_url = info['update_url']
+                        self.update_url.set(update_url)
+                        self.log(f"✓ Auto-detect Update URL: {update_url}")
+                except Exception as e:
+                    self.log(f"⚠ Không thể auto-detect: {e}")
+            
+            if update_url:
+                # Tạo update_config.py với auto-detected info
+                try:
+                    from auto_update_helper import detect_project_info, auto_detect_version
+                    info = detect_project_info(self.project_path.get())
+                    current_version = self.app_version.get()
+                    
+                    update_config_content = f'''"""
+Auto-generated update configuration
+Tự động tạo bởi MSI Builder GUI
+"""
+
+# Auto-detected from git repository
+UPDATE_URL = "{update_url}"
+APP_VERSION = "{current_version}"
+APP_NAME = "{self.app_name.get()}"
+'''
+                    
+                    # Thêm GitHub info nếu có
+                    if info['owner'] and info['repo']:
+                        update_config_content += f'''
+# GitHub Repository Info
+GITHUB_OWNER = "{info['owner']}"
+GITHUB_REPO = "{info['repo']}"
+RELEASE_URL_TEMPLATE = "https://github.com/{info['owner']}/{info['repo']}/releases/download/v{{version}}/{{filename}}"
+'''
+                    
+                    config_path = os.path.join(self.project_path.get(), "update_config.py")
+                    with open(config_path, 'w', encoding='utf-8') as f:
+                        f.write(update_config_content)
+                    self.log("✓ Đã tạo update_config.py (auto-detected)")
+                    
+                except ImportError:
+                    # Fallback: Tạo config đơn giản
+                    update_config_content = f'''"""
 Auto-generated update configuration
 """
 
-UPDATE_URL = "{self.update_url.get()}"
+UPDATE_URL = "{update_url}"
 APP_VERSION = "{self.app_version.get()}"
 APP_NAME = "{self.app_name.get()}"
 '''
-                config_path = os.path.join(self.project_path.get(), "update_config.py")
-                try:
+                    config_path = os.path.join(self.project_path.get(), "update_config.py")
                     with open(config_path, 'w', encoding='utf-8') as f:
                         f.write(update_config_content)
                     self.log("✓ Đã tạo update_config.py")
+                    
                 except Exception as e:
                     self.log(f"⚠ Không thể tạo update_config.py: {e}")
         
