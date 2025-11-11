@@ -449,6 +449,9 @@ class BuilderGUI:
         self.auto_clean_var = tk.BooleanVar(value=True)
         self.create_shortcut_var = tk.BooleanVar(value=True)
         self.optimize_var = tk.BooleanVar(value=True)
+        self.compress_var = tk.BooleanVar(value=True)
+        self.include_updater_var = tk.BooleanVar(value=True)
+        self.update_url = tk.StringVar()
         
         tk.Checkbutton(
             section,
@@ -488,6 +491,67 @@ class BuilderGUI:
             selectcolor='#ffffff',
             cursor='hand2'
         ).pack(anchor=tk.W, pady=3)
+        
+        tk.Checkbutton(
+            section,
+            text="🗜️ Compress EXE với UPX (giảm 50-70%)",
+            variable=self.compress_var,
+            font=('Segoe UI', 9),
+            bg='#ffffff',
+            fg='#2c3e50',
+            activebackground='#ffffff',
+            activeforeground='#2c3e50',
+            selectcolor='#ffffff',
+            cursor='hand2'
+        ).pack(anchor=tk.W, pady=3)
+        
+        # Auto-update section
+        update_frame = tk.Frame(section, bg='#ffffff')
+        update_frame.pack(fill=tk.X, pady=(8, 0))
+        
+        tk.Checkbutton(
+            update_frame,
+            text="🔄 Tích hợp Auto-Update",
+            variable=self.include_updater_var,
+            font=('Segoe UI', 9),
+            bg='#ffffff',
+            fg='#2c3e50',
+            activebackground='#ffffff',
+            activeforeground='#2c3e50',
+            selectcolor='#ffffff',
+            cursor='hand2'
+        ).pack(anchor=tk.W, pady=3)
+        
+        # Update URL input
+        url_frame = tk.Frame(section, bg='#ffffff')
+        url_frame.pack(fill=tk.X, pady=(0, 5), padx=(20, 0))
+        
+        tk.Label(
+            url_frame,
+            text="Update URL:",
+            font=('Segoe UI', 8),
+            bg='#ffffff',
+            fg='#7f8c8d',
+            width=10,
+            anchor='w'
+        ).pack(side=tk.LEFT)
+        
+        tk.Entry(
+            url_frame,
+            textvariable=self.update_url,
+            font=('Segoe UI', 8),
+            relief=tk.SOLID,
+            borderwidth=1,
+            fg='#7f8c8d'
+        ).pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        tk.Label(
+            section,
+            text="💡 URL đến file version.json (VD: https://example.com/version.json)",
+            font=('Segoe UI', 7),
+            fg='#95a5a6',
+            bg='#ffffff'
+        ).pack(anchor=tk.W, padx=(20, 0))
     
     def create_actions_section(self, parent):
         """Create actions section"""
@@ -765,7 +829,10 @@ class BuilderGUI:
             'app_description': self.app_description.get(),
             'auto_clean': self.auto_clean_var.get(),
             'create_shortcut': self.create_shortcut_var.get(),
-            'optimize': self.optimize_var.get()
+            'optimize': self.optimize_var.get(),
+            'compress': self.compress_var.get(),
+            'include_updater': self.include_updater_var.get(),
+            'update_url': self.update_url.get()
         }
         
         try:
@@ -797,6 +864,9 @@ class BuilderGUI:
             self.auto_clean_var.set(config.get('auto_clean', True))
             self.create_shortcut_var.set(config.get('create_shortcut', True))
             self.optimize_var.set(config.get('optimize', True))
+            self.compress_var.set(config.get('compress', True))
+            self.include_updater_var.set(config.get('include_updater', True))
+            self.update_url.set(config.get('update_url', ''))
             
             self.log("✓ Đã tải cấu hình đã lưu")
         except Exception as e:
@@ -882,6 +952,44 @@ class BuilderGUI:
     
     def generate_setup_py(self):
         """Generate setup.py file for the project"""
+        
+        # Check if auto_updater should be included
+        include_updater = self.include_updater_var.get()
+        include_files = []
+        packages_to_include = ["tkinter", "PIL", "os", "sys"]
+        
+        if include_updater:
+            # Copy auto_updater.py to project directory
+            updater_source = os.path.join(os.path.dirname(__file__), "auto_updater.py")
+            if os.path.exists(updater_source):
+                updater_dest = os.path.join(self.project_path.get(), "auto_updater.py")
+                try:
+                    shutil.copy2(updater_source, updater_dest)
+                    self.log("✓ Đã copy auto_updater.py vào dự án")
+                    packages_to_include.extend(["requests", "packaging", "hashlib", "zipfile"])
+                except Exception as e:
+                    self.log(f"⚠ Không thể copy auto_updater.py: {e}")
+            
+            # Create update_config.py
+            if self.update_url.get():
+                update_config_content = f'''"""
+Auto-generated update configuration
+"""
+
+UPDATE_URL = "{self.update_url.get()}"
+APP_VERSION = "{self.app_version.get()}"
+APP_NAME = "{self.app_name.get()}"
+'''
+                config_path = os.path.join(self.project_path.get(), "update_config.py")
+                try:
+                    with open(config_path, 'w', encoding='utf-8') as f:
+                        f.write(update_config_content)
+                    self.log("✓ Đã tạo update_config.py")
+                except Exception as e:
+                    self.log(f"⚠ Không thể tạo update_config.py: {e}")
+        
+        packages_str = ', '.join([f'"{p}"' for p in packages_to_include])
+        
         setup_content = f'''"""
 Setup script for building installer
 Auto-generated by MSI Builder GUI
@@ -898,10 +1006,11 @@ APP_AUTHOR = "{self.app_author.get()}"
 
 # Dependencies to include
 build_exe_options = {{
-    "packages": ["tkinter", "PIL", "os", "sys"],
-    "include_files": [],
-    "excludes": ["unittest", "email", "html", "http", "urllib", "xml"],
+    "packages": [{packages_str}],
+    "include_files": {include_files},
+    "excludes": ["unittest", "email", "html", "http", "urllib", "xml", "test"],
     "optimize": {2 if self.optimize_var.get() else 0},
+    "include_msvcr": True,
 }}
 
 # MSI build options
@@ -1020,6 +1129,11 @@ setup(
                 process.wait()
                 
                 if process.returncode == 0:
+                    # Apply UPX compression if enabled
+                    if self.compress_var.get():
+                        self.root.after(0, self.log, "\n🗜️ Đang nén EXE với UPX...")
+                        self.root.after(0, self.compress_with_upx, project_dir)
+                    
                     self.root.after(0, self.log, f"\n✓ {description} thành công!")
                     self.root.after(0, self.update_status, f"✓ {description} thành công!", "green")
                     self.root.after(0, self.show_build_results)
@@ -1035,6 +1149,73 @@ setup(
                 self.root.after(0, self.enable_buttons)
         
         threading.Thread(target=build_thread, daemon=True).start()
+    
+    def compress_with_upx(self, project_dir):
+        """Compress EXE files with UPX"""
+        try:
+            # Check if UPX is available
+            upx_available = False
+            try:
+                subprocess.run(
+                    ["upx", "--version"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=True
+                )
+                upx_available = True
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                self.log("⚠ UPX không được cài đặt. Bỏ qua nén.")
+                self.log("💡 Tải UPX tại: https://upx.github.io/")
+                return
+            
+            # Find all EXE files in build directory
+            build_dir = os.path.join(project_dir, "build")
+            if not os.path.exists(build_dir):
+                return
+            
+            exe_files = []
+            for root, dirs, files in os.walk(build_dir):
+                for file in files:
+                    if file.endswith(".exe"):
+                        exe_files.append(os.path.join(root, file))
+            
+            if not exe_files:
+                self.log("⚠ Không tìm thấy file EXE để nén")
+                return
+            
+            # Compress each EXE file
+            for exe_path in exe_files:
+                try:
+                    # Get original size
+                    original_size = os.path.getsize(exe_path)
+                    
+                    self.log(f"   Đang nén: {os.path.basename(exe_path)}...")
+                    
+                    # Run UPX compression (best compression)
+                    result = subprocess.run(
+                        ["upx", "--best", "--lzma", exe_path],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True
+                    )
+                    
+                    # Get compressed size
+                    compressed_size = os.path.getsize(exe_path)
+                    reduction = ((original_size - compressed_size) / original_size) * 100
+                    
+                    if result.returncode == 0:
+                        self.log(f"   ✓ Đã nén: {os.path.basename(exe_path)}")
+                        self.log(f"     {original_size:,} bytes → {compressed_size:,} bytes (giảm {reduction:.1f}%)")
+                    else:
+                        self.log(f"   ⚠ Không thể nén {os.path.basename(exe_path)}")
+                        
+                except Exception as e:
+                    self.log(f"   ⚠ Lỗi khi nén {os.path.basename(exe_path)}: {e}")
+            
+            self.log("✓ Hoàn thành nén EXE")
+            
+        except Exception as e:
+            self.log(f"⚠ Lỗi trong quá trình nén: {e}")
     
     def build_executable(self):
         """Build executable only"""

@@ -1,2 +1,6 @@
 Pillow>=10.0.0
 cx_Freeze>=6.15.0
+
+# Auto-update dependencies
+requests>=2.31.0
+packaging>=23.0

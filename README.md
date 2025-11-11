@@ -153,6 +153,8 @@ Chương trình tự động tạo icon với các kích thước sau:
 - ✅ **Build log real-time** / Real-time build logging
 - ✅ **Tùy chỉnh đầy đủ** / Full customization options
 - ✅ **Hỗ trợ nhiều loại ứng dụng** / Support multiple app types
+- ✅ **🔄 Auto-Update tích hợp** / Built-in auto-update system
+- ✅ **🗜️ Compression với UPX** / UPX compression (50-70% size reduction)
 
 ### 🚀 Cách sử dụng MSI Builder / How to Use MSI Builder
 
@@ -222,7 +224,12 @@ Click nút **🧹 Clean Build Files** hoặc bật tùy chọn "Tự động d�
 
 ### 📚 Hướng dẫn chi tiết / Detailed Guide
 
-Xem file **BUILD_GUIDE.md** để biết hướng dẫn chi tiết về:
+Xem các file hướng dẫn sau:
+- **BUILD_GUIDE.md** - Hướng dẫn build MSI/EXE chi tiết
+- **AUTO_UPDATE_GUIDE.md** - Hướng dẫn tích hợp Auto-Update và Compression
+- **UV_QUICKSTART.md** - Hướng dẫn sử dụng uv package manager
+
+Nội dung:
 - Cách sử dụng với các dự án khác
 - Troubleshooting
 - Tips & Tricks

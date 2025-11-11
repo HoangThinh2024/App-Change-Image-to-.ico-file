@@ -1,0 +1,14 @@
+{
+  "version": "1.0.1",
+  "release_date": "2024-11-11",
+  "download_url": "https://github.com/yourusername/yourapp/releases/download/v1.0.1/update.zip",
+  "checksum": "sha256_hash_here",
+  "size": "5.2 MB",
+  "changelog": "- Thêm tính năng tự động cập nhật\n- Cải thiện hiệu suất\n- Sửa lỗi nhỏ",
+  "minimum_version": "1.0.0",
+  "critical": false,
+  "notes": {
+    "vi": "Phiên bản này cải thiện đáng kể hiệu suất và thêm tính năng auto-update.",
+    "en": "This version significantly improves performance and adds auto-update feature."
+  }
+}

@@ -28,6 +28,8 @@ classifiers = [
 dependencies = [
     "Pillow>=10.0.0",
     "cx-Freeze>=6.15.0",
+    "requests>=2.31.0",
+    "packaging>=23.0",
 ]
 
 [project.optional-dependencies]
