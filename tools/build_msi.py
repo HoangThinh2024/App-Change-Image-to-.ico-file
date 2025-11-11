@@ -58,7 +58,7 @@ def build_executable():
     
     try:
         subprocess.run(
-            [sys.executable, "setup.py", "build"],
+            [sys.executable, "cx_freeze_setup.py", "build"],
             check=True
         )
         print("   ✓ Executable built successfully!")
@@ -84,7 +84,7 @@ def build_msi():
     
     try:
         subprocess.run(
-            [sys.executable, "setup.py", "bdist_msi"],
+            [sys.executable, "cx_freeze_setup.py", "bdist_msi"],
             check=True
         )
         print("   ✓ MSI installer created successfully!")
